@@ -13,6 +13,36 @@ describe('Hacker Stories', () => {
     cy.wait('@getStories')
   })
 
+  context('Simulate errors', () => {
+    const errorMsg = 'Something went wrong ...'
+
+    it.only('Shows "Something went wrong ..." in case of a server error', () => {
+      cy.intercept(
+        'GET',
+        '**/search**',
+        { statusCode: 500 }
+      ).as('getServerFailure')
+
+      cy.contains('button', 'Submit').click()
+      cy.wait('@getServerFailure')
+
+      cy.contains(errorMsg).should('be.visible')
+    })
+
+    it('Shows "Something went wrong ..." in case of a network error', () => {
+      cy.intercept(
+        'GET',
+        '**/search**',
+        { forceNetworkError: true }
+      ).as('getNetworkFailure')
+
+      cy.contains('button', 'Submit').click()
+      cy.wait('@getNetworkFailure')
+
+      cy.contains(errorMsg).should('be.visible')
+    })
+  })
+
   it('shows the footer', () => {
     cy.get('footer')
       .should('be.visible')
@@ -68,15 +98,6 @@ describe('Hacker Stories', () => {
     it('orders by points', () => { })
   })
 
-  // Hrm, how would I simulate such errors?
-  // Since I still don't know, the tests are being skipped.
-  // TODO: Find a way to test them out.
-  context.skip('Errors', () => {
-    it('shows "Something went wrong ..." in case of a server error', () => { })
-
-    it('shows "Something went wrong ..." in case of a network error', () => { })
-  })
-
   context('Search', () => {
     const initialTerm = 'React'
     const newTerm = 'Cypress'
@@ -117,6 +138,16 @@ describe('Hacker Stories', () => {
         .should('be.visible')
     })
 
+    it('types and submits the form directly', () => {
+      cy.get('#search')
+        .clear()
+        .type(newTerm)
+      cy.get('form').submit()
+
+      cy.wait('@getNewTermStories')
+      cy.get('.item').should('have.length', 20)
+    })
+
     context('Last searches', () => {
       it('searches via the last searched term', () => {
         cy.get('#search').type(`${newTerm}{enter}`)
@@ -137,7 +168,7 @@ describe('Hacker Stories', () => {
           .should('be.visible')
       })
 
-      it.only('shows a max of 5 buttons for the last searched terms', () => {
+      it('shows a max of 5 buttons for the last searched terms', () => {
         const faker = require('faker')
 
         cy.intercept(
@@ -151,7 +182,7 @@ describe('Hacker Stories', () => {
             .type(`${faker.random.word()}{enter}`)
           cy.wait('@getRandomStories')
         })
-        
+
         cy.get('.last-searches')
           .find('button')
           .should('have.length', 5)
