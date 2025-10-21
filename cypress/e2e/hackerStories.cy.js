@@ -159,8 +159,8 @@ describe('Hacker Stories', () => {
           .type(newTerm)
         cy.get('form').submit()
 
-        cy.wait('@getNewTermStories')
-        cy.get('.item').should('have.length', 20)
+        cy.wait('@getStories')
+        cy.get('.item').should('have.length', 2)
       })
 
       context('Last searches', () => {
@@ -198,7 +198,8 @@ describe('Hacker Stories', () => {
           { statusCode: 500 }
         ).as('getServerFailure')
 
-        cy.contains('button', 'Submit').click()
+        cy.visit('/')
+        cy.get('button:contains(Submit)').click()
         cy.wait('@getServerFailure')
 
         cy.contains(errorMsg).should('be.visible')
