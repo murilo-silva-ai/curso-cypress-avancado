@@ -60,6 +60,8 @@ describe('Hacker Stories', () => {
   })
 
   context('Mocking the API', () => {
+    const stories = require('../fixtures/stories')
+
     context('Footer and list of stories', () => {
       beforeEach(() => {
         cy.intercept(
@@ -79,12 +81,23 @@ describe('Hacker Stories', () => {
       })
 
       context('List of stories', () => {
-        // Since the API is external,
-        // I can't control what it will provide to the frontend,
-        // and so, how can I assert on the data?
-        // This is why this test is being skipped.
-        // TODO: Find a way to test it out.
-        it.skip('shows the right data for all rendered stories', () => { })
+        it('shows the right data for all rendered stories', () => {
+          cy.get('.item')
+            .first()
+            .should('contain', stories.hits[0].title)
+            .should('contain', stories.hits[0].num_comments)
+            .should('contain', stories.hits[0].points)
+            .should('contain', stories.hits[0].author)
+          cy.get(`.item a:contains(${stories.hits[0].title})`).should('have.attr', 'href', stories.hits[0].url)
+
+          cy.get('.item')
+            .last()
+            .should('contain', stories.hits[1].title)
+            .should('contain', stories.hits[1].num_comments)
+            .should('contain', stories.hits[1].points)
+            .should('contain', stories.hits[1].author)
+          cy.get(`.item a:contains(${stories.hits[1].title})`).should('have.attr', 'href', stories.hits[1].url)
+        })
 
 
         it('shows one less story after dimissing the first one', () => {
@@ -96,19 +109,39 @@ describe('Hacker Stories', () => {
         })
       })
 
-      // Since the API is external,
-      // I can't control what it will provide to the frontend,
-      // and so, how can I test ordering?
-      // This is why these tests are being skipped.
-      // TODO: Find a way to test them out.
-      context.skip('Order by', () => {
-        it('orders by title', () => { })
+      context('Order by', () => {
+        it('orders by title', () => {
+          cy.get('.list-header-button:contains(Title)').dblclick()
 
-        it('orders by author', () => { })
+          cy.get('.item')
+            .first()
+            .should('contain', stories.hits[1].title)
+          cy.get(`.item a:contains(${stories.hits[1].title})`).should('have.attr', 'href', stories.hits[1].url)
+        })
 
-        it('orders by comments', () => { })
+        it('orders by author', () => {
+          cy.get('.list-header-button:contains(Author)').dblclick()
 
-        it('orders by points', () => { })
+          cy.get('.item')
+            .first()
+            .should('contain', stories.hits[1].author)
+        })
+
+        it('orders by comments', () => {
+          cy.get('.list-header-button:contains(Comments)').dblclick()
+
+          cy.get('.item')
+            .first()
+            .should('contain', stories.hits[1].num_comments)
+        })
+
+        it('orders by points', () => {
+          cy.get('.list-header-button:contains(Points)').dblclick()
+
+          cy.get('.item')
+            .first()
+            .should('contain', stories.hits[1].points)
+        })
       })
     })
 
@@ -130,6 +163,10 @@ describe('Hacker Stories', () => {
         cy.wait('@getEmptyStories')
 
         cy.get('#search').clear()
+      })
+
+      it('shows no story when none is presented', () => {
+        cy.get('.item').should('not.exist')
       })
 
       it('types and hits ENTER', () => {
