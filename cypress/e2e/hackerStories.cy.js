@@ -28,7 +28,9 @@ describe('Hacker Stories', () => {
 
       cy.get('.item').should('have.length', 20)
 
-      cy.contains('More').click()
+      cy.contains('More')
+        .should('be.visible')
+        .click()
 
       cy.get('.item').should('have.length', 40)
     })
@@ -39,6 +41,7 @@ describe('Hacker Stories', () => {
         `**/search?query=${newTerm}&page=0`
       ).as('getNewTermStories')
       cy.get('#search')
+        .should('be.visible')
         .clear()
         .type(`${newTerm}{enter}`)
 
@@ -53,7 +56,8 @@ describe('Hacker Stories', () => {
       cy.get('.item').should('have.length', 20)
       cy.get('.item')
         .first()
-        .should('contain', initialTerm)
+        .should('be.visible')
+        .and('contain', initialTerm)
       cy.get(`button:contains(${newTerm})`)
         .should('be.visible')
     })
@@ -84,18 +88,20 @@ describe('Hacker Stories', () => {
         it('shows the right data for all rendered stories', () => {
           cy.get('.item')
             .first()
-            .should('contain', stories.hits[0].title)
-            .should('contain', stories.hits[0].num_comments)
-            .should('contain', stories.hits[0].points)
-            .should('contain', stories.hits[0].author)
+            .should('be.visible')
+            .and('contain', stories.hits[0].title)
+            .and('contain', stories.hits[0].num_comments)
+            .and('contain', stories.hits[0].points)
+            .and('contain', stories.hits[0].author)
           cy.get(`.item a:contains(${stories.hits[0].title})`).should('have.attr', 'href', stories.hits[0].url)
 
           cy.get('.item')
             .last()
-            .should('contain', stories.hits[1].title)
-            .should('contain', stories.hits[1].num_comments)
-            .should('contain', stories.hits[1].points)
-            .should('contain', stories.hits[1].author)
+            .should('be.visible')
+            .and('contain', stories.hits[1].title)
+            .and('contain', stories.hits[1].num_comments)
+            .and('contain', stories.hits[1].points)
+            .and('contain', stories.hits[1].author)
           cy.get(`.item a:contains(${stories.hits[1].title})`).should('have.attr', 'href', stories.hits[1].url)
         })
 
@@ -103,6 +109,7 @@ describe('Hacker Stories', () => {
         it('shows one less story after dimissing the first one', () => {
           cy.get('.button-small')
             .first()
+            .should('be.visible')
             .click()
 
           cy.get('.item').should('have.length', 1)
@@ -115,7 +122,8 @@ describe('Hacker Stories', () => {
 
           cy.get('.item')
             .first()
-            .should('contain', stories.hits[1].title)
+            .should('be.visible')
+            .and('contain', stories.hits[1].title)
           cy.get(`.item a:contains(${stories.hits[1].title})`).should('have.attr', 'href', stories.hits[1].url)
         })
 
@@ -124,7 +132,8 @@ describe('Hacker Stories', () => {
 
           cy.get('.item')
             .first()
-            .should('contain', stories.hits[1].author)
+            .should('be.visible')
+            .and('contain', stories.hits[1].author)
         })
 
         it('orders by comments', () => {
@@ -132,7 +141,8 @@ describe('Hacker Stories', () => {
 
           cy.get('.item')
             .first()
-            .should('contain', stories.hits[1].num_comments)
+            .should('be.visible')
+            .and('contain', stories.hits[1].num_comments)
         })
 
         it('orders by points', () => {
@@ -140,7 +150,8 @@ describe('Hacker Stories', () => {
 
           cy.get('.item')
             .first()
-            .should('contain', stories.hits[1].points)
+            .should('be.visible')
+            .and('contain', stories.hits[1].points)
         })
       })
     })
@@ -182,7 +193,9 @@ describe('Hacker Stories', () => {
 
       it('types and clicks the submit button', () => {
         cy.get('#search').type(newTerm)
-        cy.contains('Submit').click()
+        cy.contains('Submit')
+          .should('be.visible')
+          .click()
 
         cy.wait('@getStories')
         cy.get('.item').should('have.length', 2)
@@ -212,6 +225,7 @@ describe('Hacker Stories', () => {
 
           Cypress._.times(6, () => {
             cy.get('#search')
+              .should('be.visible')
               .clear()
               .type(`${faker.random.word()}{enter}`)
             cy.wait('@getRandomStories')
@@ -221,6 +235,11 @@ describe('Hacker Stories', () => {
             .find('button')
             .should('have.length', 5)
             .and('be.visible')
+
+          cy.get('.last-searches')
+            .within(() => {
+              cy.get('button').should('have.length', 5)
+            })
         })
       })
     })
@@ -236,7 +255,9 @@ describe('Hacker Stories', () => {
         ).as('getServerFailure')
 
         cy.visit('/')
-        cy.get('button:contains(Submit)').click()
+        cy.get('button:contains(Submit)')
+          .should('be.visible')
+          .click()
         cy.wait('@getServerFailure')
 
         cy.contains(errorMsg).should('be.visible')
